@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useRoutines } from '../../hooks/useRoutines'
-import type { Routine, RoutineBlock } from '../../types'
+import type { Routine } from '../../types'
 
 const PERIODS: { value: Routine['period'], label: string }[] = [
   { value: 'manana', label: 'Mañana' },
