@@ -15,24 +15,24 @@ export default function DashboardPage({ userId }: { userId: string }) {
   const today = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })
   const pct = habits.length > 0 ? Math.round((completedToday / habits.length) * 100) : 0
 
-  if (loading) return <p className="text-gray-400 text-sm">Cargando...</p>
+  if (loading) return <p className="text-gray-400 text-sm pt-4">Cargando...</p>
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <p className="text-xs text-gray-400 capitalize tracking-wide mb-1">{today}</p>
-        <h1 className="text-2xl font-light text-gray-900">
+        <h1 className="text-xl md:text-2xl font-light text-gray-900 leading-snug">
           {getGreeting()}, Agus.{' '}
           <span className="font-bold">Hagamos que hoy cuente.</span>
         </h1>
       </div>
 
-      {/* Two-column grid */}
-      <div className="grid grid-cols-2 gap-5 mb-5">
+      {/* Cards grid — 1 col mobile, 2 col desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 
         {/* Hábitos Diarios */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -73,7 +73,7 @@ export default function DashboardPage({ userId }: { userId: string }) {
                       <span className="text-xs font-semibold text-gray-500">{done ? '100%' : '0%'}</span>
                       <button
                         onClick={() => toggleHabit(habit.id)}
-                        className="w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all"
+                        className="w-6 h-6 md:w-5 md:h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all"
                         style={{
                           borderColor: done ? habit.color : '#d1d5db',
                           backgroundColor: done ? habit.color : 'transparent',
@@ -115,7 +115,7 @@ export default function DashboardPage({ userId }: { userId: string }) {
         </div>
 
         {/* Proyectos en curso */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -131,14 +131,14 @@ export default function DashboardPage({ userId }: { userId: string }) {
           </div>
 
           {projects.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center">
+            <div className="flex flex-col items-center justify-center py-8 text-center">
               <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mb-3">
                 <svg className="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
                 </svg>
               </div>
               <p className="text-sm font-semibold text-gray-700 mb-1">Todo listo para despegar</p>
-              <p className="text-xs text-gray-400 leading-relaxed max-w-[180px]">
+              <p className="text-xs text-gray-400 leading-relaxed max-w-[200px]">
                 Creá tu primer proyecto para empezar a organizar tus tareas de forma{' '}
                 <Link to="/projects" className="text-indigo-500 font-medium">eficiente</Link>.
               </p>
@@ -161,7 +161,7 @@ export default function DashboardPage({ userId }: { userId: string }) {
         </div>
 
         {/* Metas activas */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -175,7 +175,7 @@ export default function DashboardPage({ userId }: { userId: string }) {
           </div>
 
           {goals.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="flex flex-col items-center justify-center py-6 text-center">
               <svg className="w-10 h-10 text-amber-200 mb-3" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 0 0 .95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 0 0-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 0 0-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 0 0-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 0 0 .951-.69l1.519-4.674Z" />
               </svg>
@@ -219,7 +219,7 @@ export default function DashboardPage({ userId }: { userId: string }) {
         </div>
 
         {/* Tip de Arquitecto */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5">
           <div className="flex items-center gap-2 mb-3">
             <svg className="w-4 h-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -234,19 +234,19 @@ export default function DashboardPage({ userId }: { userId: string }) {
 
       </div>
 
-      {/* Quick capture banner */}
-      <div className="rounded-2xl p-5 flex items-center justify-between" style={{ background: '#1e1e3a' }}>
+      {/* Quick capture banner — stacks on mobile */}
+      <div className="rounded-2xl p-4 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4" style={{ background: '#1e1e3a' }}>
         <div>
           <p className="text-white font-semibold text-sm mb-0.5">¿Tenés algo en mente?</p>
-          <p className="text-white/50 text-xs leading-relaxed max-w-xs">
-            No dejes que las ideas se escapen. Capturá pensamientos, tareas o notas rápidas en tu bandeja de entrada en segundos.
+          <p className="text-white/50 text-xs leading-relaxed">
+            No dejes que las ideas se escapen. Capturá pensamientos, tareas o notas rápidas en segundos.
           </p>
         </div>
-        <div className="flex items-center gap-2 ml-6 flex-shrink-0">
-          <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition-colors">
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button className="flex-1 md:flex-none px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition-colors text-center">
             Captura Rápida
           </button>
-          <button className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg transition-colors">
+          <button className="flex-1 md:flex-none px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-xl transition-colors text-center">
             Ver Inbox
           </button>
         </div>
