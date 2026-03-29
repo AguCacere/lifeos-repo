@@ -92,7 +92,7 @@ export default function GoalsPage({ userId }: { userId: string }) {
   if (loading) return <p className="text-gray-400 text-sm">Cargando metas...</p>
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl pt-6 md:pt-0">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Metas</h1>
@@ -102,7 +102,7 @@ export default function GoalsPage({ userId }: { userId: string }) {
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
+          className="px-4 py-3 min-h-[44px] bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
         >
           + Nueva meta
         </button>
@@ -170,13 +170,13 @@ export default function GoalsPage({ userId }: { userId: string }) {
           <div className="flex gap-2">
             <button
               onClick={handleAdd}
-              className="flex-1 md:flex-none px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
+              className="flex-1 md:flex-none px-4 py-3 min-h-[44px] bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
             >
               Guardar
             </button>
             <button
               onClick={() => setShowForm(false)}
-              className="flex-1 md:flex-none px-4 py-2.5 text-gray-500 text-sm rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
+              className="flex-1 md:flex-none px-4 py-3 min-h-[44px] text-gray-500 text-sm rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
             >
               Cancelar
             </button>

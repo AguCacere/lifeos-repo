@@ -74,13 +74,15 @@ export default function Layout() {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto pt-14 md:pt-0 pb-24 md:pb-0 px-4 py-4 md:p-8">
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0 pb-32 md:pb-0 px-4 md:p-8">
         <Outlet />
       </main>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-100"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-100"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
         <div className="flex">
           {mobileNav.map(item => {
             const active = location.pathname === item.to
@@ -88,15 +90,20 @@ export default function Layout() {
               <Link
                 key={item.to}
                 to={item.to}
-                className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors"
+                className="relative flex-1 flex flex-col items-center justify-center pt-2 pb-2.5 gap-0.5 transition-colors"
               >
-                <span className={active ? 'text-indigo-600' : 'text-gray-400'}>{item.icon}</span>
-                <span className={`text-[10px] font-medium ${active ? 'text-indigo-600' : 'text-gray-400'}`}>
+                {/* Active top indicator */}
+                <span
+                  className={`absolute top-0 left-1/2 -translate-x-1/2 h-0.5 rounded-full transition-all ${
+                    active ? 'w-6 bg-indigo-600' : 'w-0 bg-transparent'
+                  }`}
+                />
+                <span className={`transition-colors ${active ? 'text-indigo-600' : 'text-gray-400'}`}>
+                  {item.icon}
+                </span>
+                <span className={`text-[10px] font-medium transition-colors ${active ? 'text-indigo-600' : 'text-gray-400'}`}>
                   {item.label}
                 </span>
-                {active && (
-                  <span className="absolute bottom-0 w-6 h-0.5 bg-indigo-600 rounded-full" />
-                )}
               </Link>
             )
           })}

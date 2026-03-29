@@ -48,7 +48,7 @@ export default function HabitsPage({ userId }: { userId: string }) {
   const days = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto pt-6 md:pt-0">
       {/* Header — stacks on mobile */}
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
         <div>
@@ -139,13 +139,13 @@ export default function HabitsPage({ userId }: { userId: string }) {
           <div className="flex gap-2">
             <button
               onClick={handleAdd}
-              className="flex-1 md:flex-none px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
+              className="flex-1 md:flex-none px-4 py-3 min-h-[44px] bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
             >
               Guardar
             </button>
             <button
               onClick={() => setShowForm(false)}
-              className="flex-1 md:flex-none px-4 py-2.5 text-gray-500 text-sm rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
+              className="flex-1 md:flex-none px-4 py-3 min-h-[44px] text-gray-500 text-sm rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
             >
               Cancelar
             </button>
@@ -164,7 +164,7 @@ export default function HabitsPage({ userId }: { userId: string }) {
           <p className="text-xs text-gray-400 mb-4">Creá tu primero con el botón de abajo</p>
           <button
             onClick={() => setShowForm(true)}
-            className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
+            className="px-5 py-3 min-h-[44px] bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
           >
             + Nuevo hábito
           </button>

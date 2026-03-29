@@ -189,7 +189,7 @@ export default function RoutinesPage({ userId }: { userId: string }) {
   const totalMins = getTotalMins(pendingBlocks)
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto pt-6 md:pt-0">
       {/* Page header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -200,7 +200,7 @@ export default function RoutinesPage({ userId }: { userId: string }) {
         </div>
         <button
           onClick={() => setShowRoutineForm(true)}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
+          className="px-4 py-3 min-h-[44px] bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
         >
           + Nueva rutina
         </button>

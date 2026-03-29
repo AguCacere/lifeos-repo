@@ -18,7 +18,7 @@ export default function DashboardPage({ userId }: { userId: string }) {
   if (loading) return <p className="text-gray-400 text-sm pt-4">Cargando...</p>
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto pt-6 md:pt-0">
       {/* Header */}
       <div className="mb-6">
         <p className="text-xs text-gray-400 capitalize tracking-wide mb-1">{today}</p>
