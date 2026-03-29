@@ -10,6 +10,9 @@ const PERIODS: { value: Routine['period'], label: string, icon: string }[] = [
 
 const COLORS = ['#6366f1', '#f97316', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
+const HOURS_LIST = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
+const MINS_LIST = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']
+
 type PendingBlock = {
   title: string
   start_time: string
@@ -34,6 +37,60 @@ function getTotalMins(blocks: PendingBlock[]) {
     const mins = (eh * 60 + em) - (sh * 60 + sm)
     return acc + Math.max(0, mins)
   }, 0)
+}
+
+// Custom chevron SVG for selects
+const Chevron = () => (
+  <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+  </svg>
+)
+
+// Time picker: value = "HH:MM", onChange receives new "HH:MM"
+function TimePicker({ value, onChange, size = 'sm' }: {
+  value: string
+  onChange: (v: string) => void
+  size?: 'xs' | 'sm'
+}) {
+  const parts = value.split(':')
+  const h = parts[0] ?? '07'
+  // Snap minutes to nearest MINS_LIST value
+  const rawM = parts[1] ?? '00'
+  const m = MINS_LIST.includes(rawM) ? rawM : '00'
+
+  const base = size === 'xs'
+    ? 'appearance-none bg-white border border-gray-200 rounded-lg px-2 py-1.5 pr-6 outline-none focus:border-indigo-400 text-gray-700 cursor-pointer text-xs'
+    : 'appearance-none bg-white border border-gray-200 rounded-xl px-3 py-2 pr-7 outline-none focus:border-indigo-400 text-gray-700 cursor-pointer text-sm font-medium'
+
+  return (
+    <div className="flex items-center gap-1">
+      <div className="relative">
+        <select
+          value={h}
+          onChange={e => onChange(`${e.target.value}:${m}`)}
+          className={base}
+        >
+          {HOURS_LIST.map(hh => <option key={hh} value={hh}>{hh}</option>)}
+        </select>
+        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none">
+          <Chevron />
+        </div>
+      </div>
+      <span className="text-xs text-gray-400 font-semibold">:</span>
+      <div className="relative">
+        <select
+          value={m}
+          onChange={e => onChange(`${h}:${e.target.value}`)}
+          className={base}
+        >
+          {MINS_LIST.map(mm => <option key={mm} value={mm}>{mm}</option>)}
+        </select>
+        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none">
+          <Chevron />
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function RoutinesPage({ userId }: { userId: string }) {
@@ -258,21 +315,17 @@ export default function RoutinesPage({ userId }: { userId: string }) {
                       placeholder="Nombre del bloque..."
                       value={pbTitle}
                       onChange={e => setPbTitle(e.target.value)}
-                      className="w-full text-sm bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-400"
+                      className="w-full text-sm bg-white border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-indigo-400"
                     />
-                    <div className="flex gap-2">
-                      <input
-                        type="time"
-                        value={pbStart}
-                        onChange={e => setPbStart(e.target.value)}
-                        className="flex-1 text-xs bg-white border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-indigo-400"
-                      />
-                      <input
-                        type="time"
-                        value={pbEnd}
-                        onChange={e => setPbEnd(e.target.value)}
-                        className="flex-1 text-xs bg-white border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-indigo-400"
-                      />
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Inicio</p>
+                        <TimePicker value={pbStart} onChange={setPbStart} size="xs" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Fin</p>
+                        <TimePicker value={pbEnd} onChange={setPbEnd} size="xs" />
+                      </div>
                     </div>
                     <div className="flex gap-1.5">
                       {COLORS.map(c => (
@@ -319,25 +372,20 @@ export default function RoutinesPage({ userId }: { userId: string }) {
               {/* Reminder + Frequency */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 mb-1.5">
+                  <div className="flex items-center gap-1.5 mb-2">
                     <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                     </svg>
-                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Recordatorio</span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">Recordatorio</span>
                   </div>
-                  <input
-                    type="time"
-                    value={reminder}
-                    onChange={e => setReminder(e.target.value)}
-                    className="text-sm font-semibold text-gray-700 bg-transparent outline-none w-full"
-                  />
+                  <TimePicker value={reminder} onChange={setReminder} size="xs" />
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 mb-1.5">
+                  <div className="flex items-center gap-1.5 mb-2">
                     <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                     </svg>
-                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Frecuencia</span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">Frecuencia</span>
                   </div>
                   <input
                     type="text"
@@ -441,45 +489,51 @@ export default function RoutinesPage({ userId }: { userId: string }) {
                 {/* Block add form */}
                 {addingBlockTo === routine.id && (
                   <div className="px-4 py-3 bg-indigo-50/50 border-b border-indigo-100">
-                    <p className="text-xs font-semibold text-indigo-600 mb-2">Nuevo bloque</p>
-                    <div className="flex gap-2 mb-2">
-                      <input
-                        type="time"
-                        value={blockStart}
-                        onChange={e => setBlockStart(e.target.value)}
-                        className="flex-1 text-xs border border-gray-200 bg-white rounded-lg px-2 py-1.5 outline-none focus:border-indigo-400"
-                      />
-                      <input
-                        type="time"
-                        value={blockEnd}
-                        onChange={e => setBlockEnd(e.target.value)}
-                        className="flex-1 text-xs border border-gray-200 bg-white rounded-lg px-2 py-1.5 outline-none focus:border-indigo-400"
-                      />
+                    <p className="text-[10px] font-bold tracking-[0.15em] text-indigo-500 uppercase mb-3">Nuevo bloque</p>
+
+                    {/* Time pickers */}
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="flex-1">
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Inicio</p>
+                        <TimePicker value={blockStart} onChange={setBlockStart} size="xs" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Fin</p>
+                        <TimePicker value={blockEnd} onChange={setBlockEnd} size="xs" />
+                      </div>
                     </div>
-                    <select
-                      value={blockHabitId}
-                      onChange={e => {
-                        setBlockHabitId(e.target.value)
-                        if (e.target.value) {
-                          const habit = habits.find(h => h.id === e.target.value)
-                          if (habit) setBlockTitle(habit.name)
-                        }
-                      }}
-                      className="w-full text-xs border border-gray-200 bg-white rounded-lg px-2 py-1.5 mb-2 outline-none focus:border-indigo-400"
-                    >
-                      <option value="">Sin hábito vinculado</option>
-                      {habits.map(h => (
-                        <option key={h.id} value={h.id}>{h.name}</option>
-                      ))}
-                    </select>
+
+                    {/* Habit select */}
+                    <div className="relative mb-2">
+                      <select
+                        value={blockHabitId}
+                        onChange={e => {
+                          setBlockHabitId(e.target.value)
+                          if (e.target.value) {
+                            const habit = habits.find(h => h.id === e.target.value)
+                            if (habit) setBlockTitle(habit.name)
+                          }
+                        }}
+                        className="w-full appearance-none text-xs bg-white border border-gray-200 rounded-xl px-3 py-2 pr-7 outline-none focus:border-indigo-400 text-gray-700 cursor-pointer"
+                      >
+                        <option value="">Sin hábito vinculado</option>
+                        {habits.map(h => (
+                          <option key={h.id} value={h.id}>{h.name}</option>
+                        ))}
+                      </select>
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <Chevron />
+                      </div>
+                    </div>
+
                     <input
                       type="text"
                       placeholder="Título del bloque..."
                       value={blockTitle}
                       onChange={e => setBlockTitle(e.target.value)}
-                      className="w-full text-xs border border-gray-200 bg-white rounded-lg px-2 py-1.5 mb-2 outline-none focus:border-indigo-400"
+                      className="w-full text-xs bg-white border border-gray-200 rounded-xl px-3 py-2 mb-2 outline-none focus:border-indigo-400"
                     />
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2.5">
                       {COLORS.map(c => (
                         <button
                           key={c}

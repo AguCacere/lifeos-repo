@@ -88,40 +88,54 @@ export default function HabitsPage({ userId }: { userId: string }) {
       {/* New habit form */}
       {showForm && (
         <div className="bg-white border border-gray-100 rounded-2xl p-4 md:p-5 mb-5 shadow-sm">
-          <p className="text-sm font-semibold text-gray-800 mb-4">Nuevo hábito</p>
+          <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-4">Nuevo hábito</p>
           <input
             type="text"
             placeholder="Nombre del hábito..."
             value={name}
             onChange={e => setName(e.target.value)}
-            className="w-full text-sm border-b border-gray-200 pb-2.5 mb-4 outline-none focus:border-indigo-500 bg-transparent text-gray-700 placeholder:text-gray-300 transition-colors"
+            className="w-full text-sm border-b border-gray-200 pb-2.5 mb-5 outline-none focus:border-indigo-500 bg-transparent text-gray-700 placeholder:text-gray-300 transition-colors"
           />
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <select
-              value={category}
-              onChange={e => setCategory(e.target.value as typeof CATEGORIES[number])}
-              className="text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-indigo-400 bg-white text-gray-700 capitalize"
-            >
+
+          {/* Category pills */}
+          <div className="mb-4">
+            <p className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase mb-2">Categoría</p>
+            <div className="flex flex-wrap gap-2">
               {CATEGORIES.map(c => (
-                <option key={c} value={c}>{c}</option>
+                <button
+                  key={c}
+                  onClick={() => setCategory(c)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border-2 transition-all capitalize ${
+                    category === c
+                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
+                      : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  {c}
+                </button>
               ))}
-            </select>
-            <div className="flex gap-2 items-center flex-wrap">
-              <span className="text-xs text-gray-400">Color:</span>
+            </div>
+          </div>
+
+          {/* Color picker */}
+          <div className="mb-5">
+            <p className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase mb-2">Color</p>
+            <div className="flex gap-2.5 items-center">
               {COLORS.map(c => (
                 <button
                   key={c}
                   onClick={() => setColor(c)}
-                  className="w-6 h-6 rounded-full transition-transform flex-shrink-0"
+                  className="w-7 h-7 rounded-full transition-transform flex-shrink-0"
                   style={{
                     backgroundColor: c,
                     transform: color === c ? 'scale(1.3)' : 'scale(1)',
-                    boxShadow: color === c ? `0 0 0 2px white, 0 0 0 3px ${c}` : 'none',
+                    boxShadow: color === c ? `0 0 0 2px white, 0 0 0 3.5px ${c}` : 'none',
                   }}
                 />
               ))}
             </div>
           </div>
+
           <div className="flex gap-2">
             <button
               onClick={handleAdd}
