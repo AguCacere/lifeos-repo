@@ -23,5 +23,11 @@ export function useAuth() {
     await supabase.auth.signOut()
   }
 
-  return { user, loading, signOut }
+  const displayName = user
+    ? (user.user_metadata?.full_name as string | undefined)?.trim() ||
+      user.email?.split('@')[0] ||
+      'Usuario'
+    : ''
+
+  return { user, loading, signOut, displayName }
 }

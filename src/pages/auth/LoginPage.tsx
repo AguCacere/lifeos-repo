@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
 export default function LoginPage() {
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSignUp, setIsSignUp] = useState(false)
@@ -16,7 +17,11 @@ export default function LoginPage() {
     setMessage(null)
 
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({ email, password })
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName.trim() || email.split('@')[0] } },
+      })
       if (error) setError(error.message)
       else setMessage('Revisá tu email para confirmar la cuenta')
     } else {
@@ -168,6 +173,19 @@ export default function LoginPage() {
             <div className="w-0.5 bg-indigo-500 rounded-full flex-shrink-0" />
 
             <div className="flex-1 flex flex-col gap-6">
+              <div>
+                <label className="block text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-2">
+                  Nombre completo
+                </label>
+                <input
+                  type="text"
+                  placeholder="Tu nombre"
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  className="w-full text-sm border-b border-gray-300 pb-2.5 outline-none focus:border-indigo-500 bg-transparent text-gray-700 placeholder:text-gray-400 transition-colors"
+                />
+              </div>
+
               <div>
                 <label className="block text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-2">
                   Email

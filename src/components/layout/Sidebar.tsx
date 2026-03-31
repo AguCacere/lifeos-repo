@@ -51,7 +51,7 @@ const navItems = [
 
 export default function Sidebar() {
   const location = useLocation()
-  const { signOut } = useAuth()
+  const { signOut, displayName } = useAuth()
 
   return (
     <aside className="w-52 min-h-screen bg-white border-r border-gray-100 flex flex-col py-6 px-3">
@@ -64,6 +64,19 @@ export default function Sidebar() {
           <span className="text-sm font-bold text-gray-900 tracking-tight">LifeOS</span>
         </div>
         <p className="text-[9px] tracking-[0.18em] text-gray-400 uppercase pl-8">The Digital Architect</p>
+      </div>
+
+      {/* User */}
+      <div className="px-2 mb-5 flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+          <span className="text-indigo-700 text-xs font-bold uppercase">
+            {displayName.charAt(0) || '?'}
+          </span>
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-gray-800 truncate">{displayName}</p>
+          <p className="text-[9px] text-gray-400">Pro</p>
+        </div>
       </div>
 
       {/* Nav */}

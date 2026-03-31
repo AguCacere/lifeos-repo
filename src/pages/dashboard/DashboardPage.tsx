@@ -8,7 +8,7 @@ function getGreeting() {
   return 'Buenas noches'
 }
 
-export default function DashboardPage({ userId }: { userId: string }) {
+export default function DashboardPage({ userId, displayName }: { userId: string; displayName: string }) {
   const { habits, goals, projects, loading, toggleHabit, isCompletedToday } = useDashboard(userId)
 
   const completedToday = habits.filter(h => isCompletedToday(h.id)).length
@@ -23,7 +23,7 @@ export default function DashboardPage({ userId }: { userId: string }) {
       <div className="mb-6">
         <p className="text-xs text-gray-400 capitalize tracking-wide mb-1">{today}</p>
         <h1 className="text-xl md:text-2xl font-light text-gray-900 leading-snug">
-          {getGreeting()}, Agus.{' '}
+          {getGreeting()}, {displayName.split(' ')[0]}.{' '}
           <span className="font-bold">Hagamos que hoy cuente.</span>
         </h1>
       </div>
