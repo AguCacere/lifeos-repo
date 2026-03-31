@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 
@@ -17,6 +17,9 @@ export default function SettingsPage() {
 
   const [name, setName] = useState(displayName)
   const [saving, setSaving] = useState(false)
+
+  // Keep input in sync when displayName updates after refreshSession()
+  useEffect(() => { setName(displayName) }, [displayName])
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -36,6 +39,9 @@ export default function SettingsPage() {
     if (error) {
       setError(error.message)
     } else {
+      // Force session refresh so user_metadata (full_name, name_changed_at)
+      // is immediately reflected in useAuth without requiring a page reload
+      await supabase.auth.refreshSession()
       setSuccess(true)
     }
     setSaving(false)
