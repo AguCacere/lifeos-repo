@@ -2,6 +2,41 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Habit, HabitLog } from '../types'
 
+// Returns the number of consecutive days (going back from today) where
+// ALL active habits were completed. If today is not yet complete, starts
+// counting from yesterday.
+export function calculateStreak(habits: Habit[], logs: HabitLog[]): number {
+  if (habits.length === 0) return 0
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  function allDoneOn(dateStr: string): boolean {
+    return habits.every(h =>
+      logs.some(l => l.habit_id === h.id && l.log_date === dateStr && l.completed)
+    )
+  }
+
+  const todayStr = today.toISOString().split('T')[0]
+  const todayDone = allDoneOn(todayStr)
+
+  // If today isn't complete yet, start counting from yesterday
+  const cursor = new Date(today)
+  if (!todayDone) {
+    cursor.setDate(cursor.getDate() - 1)
+  }
+
+  let streak = 0
+  while (streak < 30) {
+    const dateStr = cursor.toISOString().split('T')[0]
+    if (!allDoneOn(dateStr)) break
+    streak++
+    cursor.setDate(cursor.getDate() - 1)
+  }
+
+  return streak
+}
+
 export function useHabits(userId: string) {
   const [habits, setHabits] = useState<Habit[]>([])
   const [logs, setLogs] = useState<HabitLog[]>([])
@@ -14,7 +49,7 @@ export function useHabits(userId: string) {
       return
     }
     fetchHabits()
-    fetchTodayLogs()
+    fetchRecentLogs()
   }, [userId])
 
   async function fetchHabits() {
@@ -30,13 +65,15 @@ export function useHabits(userId: string) {
     setLoading(false)
   }
 
-  async function fetchTodayLogs() {
-    const today = new Date().toISOString().split('T')[0]
+  async function fetchRecentLogs() {
+    const fromDate = new Date()
+    fromDate.setDate(fromDate.getDate() - 29) // last 30 days inclusive
+    const fromStr = fromDate.toISOString().split('T')[0]
 
     const { data, error } = await supabase
       .from('habit_logs')
       .select('*')
-      .eq('log_date', today)
+      .gte('log_date', fromStr)
 
     if (error) setError(error.message)
     else setLogs(data ?? [])

@@ -1,5 +1,9 @@
 import { useState } from 'react'
-import { useHabits } from '../../hooks/useHabits'
+import {
+  AreaChart, Area, XAxis, Tooltip, ResponsiveContainer,
+} from 'recharts'
+import { useHabits, calculateStreak } from '../../hooks/useHabits'
+import type { Habit, HabitLog } from '../../types'
 
 const CATEGORIES = ['general', 'salud', 'aprendizaje', 'trabajo', 'personal'] as const
 const COLORS = ['#6366f1', '#f97316', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
@@ -12,8 +16,94 @@ const CATEGORY_COLORS: Record<string, string> = {
   general: '#6b7280',
 }
 
+// ── Weekly data builder ────────────────────────────────────────────────────
+function buildWeeklyData(habits: Habit[], logs: HabitLog[]) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  return Array.from({ length: 5 }, (_, i) => {
+    // i=0 → SEMANA 1 (oldest), i=4 → ACTUAL
+    const weeksAgo = 4 - i
+    const weekEnd = new Date(today)
+    weekEnd.setDate(today.getDate() - weeksAgo * 7)
+    const weekStart = new Date(weekEnd)
+    weekStart.setDate(weekEnd.getDate() - 6)
+
+    let total = 0
+    let count = 0
+
+    for (let d = 0; d < 7; d++) {
+      const day = new Date(weekStart)
+      day.setDate(weekStart.getDate() + d)
+      if (day > today) continue
+
+      const dateStr = day.toISOString().split('T')[0]
+      const done = habits.filter(h =>
+        logs.some(l => l.habit_id === h.id && l.log_date === dateStr && l.completed)
+      ).length
+
+      if (habits.length > 0) {
+        total += (done / habits.length) * 100
+        count++
+      }
+    }
+
+    return {
+      week: weeksAgo === 0 ? 'ACTUAL' : `SEMANA ${i + 1}`,
+      pct: count > 0 ? Math.round(total / count) : 0,
+    }
+  })
+}
+
+// ── Custom tooltip ─────────────────────────────────────────────────────────
+function ChartTooltip({ active, payload, label }: {
+  active?: boolean
+  payload?: { value: number }[]
+  label?: string
+}) {
+  if (!active || !payload?.length) return null
+  return (
+    <div style={{
+      background: '#1e1b4b',
+      borderRadius: 8,
+      padding: '8px 12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+    }}>
+      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 10, marginBottom: 2, letterSpacing: '0.08em' }}>
+        {label}
+      </p>
+      <p style={{ color: 'white', fontSize: 14, fontWeight: 700, margin: 0 }}>
+        Completado: {payload[0].value}%
+      </p>
+    </div>
+  )
+}
+
+// ── Custom dot ─────────────────────────────────────────────────────────────
+function buildDotRenderer(maxPct: number) {
+  return function CustomDot(props: {
+    cx?: number; cy?: number; payload?: { pct: number }
+  }) {
+    const { cx, cy, payload } = props
+    if (cx == null || cy == null || !payload) return null
+    const isMax = payload.pct === maxPct && maxPct > 0
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={isMax ? 5 : 2.5}
+        fill="#6366f1"
+        stroke={isMax ? 'white' : 'none'}
+        strokeWidth={isMax ? 2 : 0}
+        fillOpacity={isMax ? 1 : 0.45}
+      />
+    )
+  }
+}
+
+// ── Main component ─────────────────────────────────────────────────────────
 export default function HabitsPage({ userId }: { userId: string }) {
-  const { habits, loading, addHabit, toggleHabit, deleteHabit, isCompletedToday } = useHabits(userId)
+  const { habits, logs, loading, addHabit, toggleHabit, deleteHabit, isCompletedToday } = useHabits(userId)
 
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
@@ -44,46 +134,93 @@ export default function HabitsPage({ userId }: { userId: string }) {
     return acc
   }, {} as Record<string, typeof habits>)
 
+  const streak = calculateStreak(habits, logs)
   const completedToday = habits.filter(h => isCompletedToday(h.id)).length
-  const days = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
+
+  // Chart
+  const uniqueDates = new Set(logs.map(l => l.log_date))
+  const showChart = uniqueDates.size >= 7 && habits.length > 0
+  const weeklyData = showChart ? buildWeeklyData(habits, logs) : []
+  const maxPct = weeklyData.length > 0 ? Math.max(...weeklyData.map(d => d.pct)) : 0
+  const CustomDot = buildDotRenderer(maxPct)
 
   return (
     <div className="max-w-4xl mx-auto pt-6 md:pt-0">
-      {/* Header — stacks on mobile */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">Habit Tracker</h1>
           <p className="text-sm text-gray-400 mt-0.5">Building the architecture of your discipline.</p>
         </div>
 
-        {/* Weekly completion card */}
+        {/* Streak card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 flex items-center gap-4 self-start">
           <div>
-            <p className="text-[9px] tracking-[0.2em] text-gray-400 uppercase font-semibold mb-2">Weekly Completion</p>
+            <p className="text-[9px] tracking-[0.2em] text-gray-400 uppercase font-semibold mb-2">Racha actual</p>
             <div className="flex gap-1">
-              {days.map((d, i) => {
-                const filled = i < (completedToday % 7)
+              {Array.from({ length: 7 }, (_, i) => {
+                const filled = i < Math.min(streak % 7 === 0 && streak > 0 ? 7 : streak % 7, 7)
                 return (
                   <div
-                    key={d}
+                    key={i}
                     className="w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold transition-colors"
                     style={{
                       backgroundColor: filled ? '#6366f1' : '#eef2ff',
                       color: filled ? 'white' : '#a5b4fc',
                     }}
                   >
-                    {d}
+                    {i + 1}
                   </div>
                 )
               })}
             </div>
           </div>
           <div className="text-center pl-3 border-l border-gray-100">
-            <p className="text-2xl font-bold text-gray-900">{completedToday}</p>
-            <p className="text-[9px] tracking-[0.15em] text-gray-400 uppercase">Day Streak</p>
+            <p className="text-2xl font-bold text-gray-900">{streak}</p>
+            <p className="text-[9px] tracking-[0.15em] text-gray-400 uppercase">Días</p>
           </div>
         </div>
       </div>
+
+      {/* Weekly evolution chart */}
+      {showChart && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 pt-4 pb-2 mb-6">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase">Evolución semanal</p>
+            <p className="text-xs font-semibold text-indigo-600">{weeklyData[4]?.pct ?? 0}% esta semana</p>
+          </div>
+          <ResponsiveContainer width="100%" height={180}>
+            <AreaChart data={weeklyData} margin={{ top: 16, right: 8, left: 8, bottom: 0 }}>
+              <defs>
+                <linearGradient id="habitGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                dataKey="week"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 9, fill: '#9ca3af', fontWeight: 700, letterSpacing: '0.1em' }}
+                dy={8}
+              />
+              <Tooltip
+                content={<ChartTooltip />}
+                cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 2' }}
+              />
+              <Area
+                type="monotone"
+                dataKey="pct"
+                stroke="#6366f1"
+                strokeWidth={2}
+                fill="url(#habitGrad)"
+                dot={<CustomDot />}
+                activeDot={{ r: 5, fill: '#6366f1', stroke: 'white', strokeWidth: 2 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* New habit form */}
       {showForm && (
@@ -171,6 +308,19 @@ export default function HabitsPage({ userId }: { userId: string }) {
         </div>
       ) : (
         <div className="flex flex-col gap-6">
+          {/* Today's summary */}
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-gray-400">
+              <span className="font-semibold text-gray-700">{completedToday}</span> de {habits.length} hábitos completos hoy
+            </p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 transition-colors min-h-[36px]"
+            >
+              + Nuevo hábito
+            </button>
+          </div>
+
           {/* Category sections */}
           {Object.entries(grouped).map(([cat, catHabits]) => {
             const doneInCat = catHabits.filter(h => isCompletedToday(h.id)).length
@@ -185,7 +335,7 @@ export default function HabitsPage({ userId }: { userId: string }) {
                   <div className="flex-1 h-px bg-gray-100" />
                 </div>
 
-                {/* Habit cards — 1 col mobile, 2 col sm, 3 col md+ */}
+                {/* Habit cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {catHabits.map(habit => {
                     const done = isCompletedToday(habit.id)
@@ -217,7 +367,6 @@ export default function HabitsPage({ userId }: { userId: string }) {
                           </button>
                         </div>
 
-                        {/* Progress bar */}
                         <div className="h-0.5 bg-gray-100 rounded-full overflow-hidden mb-3">
                           <div
                             className="h-full rounded-full transition-all"
