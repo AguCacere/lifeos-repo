@@ -5,11 +5,16 @@ import type { Habit, HabitLog } from '../types'
 // Returns the number of consecutive days (going back from today) where
 // ALL active habits were completed. If today is not yet complete, starts
 // counting from yesterday.
+// Dates are always computed in UTC to match how toggleHabit stores log_date.
 export function calculateStreak(habits: Habit[], logs: HabitLog[]): number {
-  if (habits.length === 0) return 0
+  if (habits.length === 0 || logs.length === 0) return 0
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  // UTC date string N days before now — matches the format stored by toggleHabit
+  function utcDateStrDaysAgo(n: number): string {
+    const d = new Date()
+    d.setUTCDate(d.getUTCDate() - n)
+    return d.toISOString().split('T')[0]
+  }
 
   function allDoneOn(dateStr: string): boolean {
     return habits.every(h =>
@@ -17,21 +22,18 @@ export function calculateStreak(habits: Habit[], logs: HabitLog[]): number {
     )
   }
 
-  const todayStr = today.toISOString().split('T')[0]
-  const todayDone = allDoneOn(todayStr)
+  const todayStr = utcDateStrDaysAgo(0)
+  const todayComplete = allDoneOn(todayStr)
 
-  // If today isn't complete yet, start counting from yesterday
-  const cursor = new Date(today)
-  if (!todayDone) {
-    cursor.setDate(cursor.getDate() - 1)
-  }
-
+  // If today isn't fully done yet, start counting from yesterday
+  let daysBack = todayComplete ? 0 : 1
   let streak = 0
-  while (streak < 30) {
-    const dateStr = cursor.toISOString().split('T')[0]
+
+  while (daysBack < 31) {
+    const dateStr = utcDateStrDaysAgo(daysBack)
     if (!allDoneOn(dateStr)) break
     streak++
-    cursor.setDate(cursor.getDate() - 1)
+    daysBack++
   }
 
   return streak

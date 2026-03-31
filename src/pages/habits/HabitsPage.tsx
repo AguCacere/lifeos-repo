@@ -18,26 +18,31 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 // ── Weekly data builder ────────────────────────────────────────────────────
 function buildWeeklyData(habits: Habit[], logs: HabitLog[]) {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  // todayOffset = how many days ago is the start of "today" in UTC
+  const nowUtcDay = new Date().toISOString().split('T')[0]
+
+  function utcDateStrDaysAgo(n: number): string {
+    const d = new Date()
+    d.setUTCDate(d.getUTCDate() - n)
+    return d.toISOString().split('T')[0]
+  }
 
   return Array.from({ length: 5 }, (_, i) => {
-    // i=0 → SEMANA 1 (oldest), i=4 → ACTUAL
+    // i=0 → SEMANA 1 (oldest, 28–34 days ago), i=4 → ACTUAL (0–6 days ago)
     const weeksAgo = 4 - i
-    const weekEnd = new Date(today)
-    weekEnd.setDate(today.getDate() - weeksAgo * 7)
-    const weekStart = new Date(weekEnd)
-    weekStart.setDate(weekEnd.getDate() - 6)
+    // Days ago for the END (most recent day) of this week
+    const endDaysAgo = weeksAgo * 7
+    // Days ago for the START (oldest day) of this week
+    const startDaysAgo = endDaysAgo + 6
 
     let total = 0
     let count = 0
 
-    for (let d = 0; d < 7; d++) {
-      const day = new Date(weekStart)
-      day.setDate(weekStart.getDate() + d)
-      if (day > today) continue
+    for (let offset = endDaysAgo; offset <= startDaysAgo; offset++) {
+      const dateStr = utcDateStrDaysAgo(offset)
+      // Skip future dates (offset < 0 can't happen here, but guard anyway)
+      if (dateStr > nowUtcDay) continue
 
-      const dateStr = day.toISOString().split('T')[0]
       const done = habits.filter(h =>
         logs.some(l => l.habit_id === h.id && l.log_date === dateStr && l.completed)
       ).length
@@ -137,9 +142,8 @@ export default function HabitsPage({ userId }: { userId: string }) {
   const streak = calculateStreak(habits, logs)
   const completedToday = habits.filter(h => isCompletedToday(h.id)).length
 
-  // Chart
-  const uniqueDates = new Set(logs.map(l => l.log_date))
-  const showChart = uniqueDates.size >= 7 && habits.length > 0
+  // Chart — show whenever habits exist; weeks with no data render as 0%
+  const showChart = habits.length > 0
   const weeklyData = showChart ? buildWeeklyData(habits, logs) : []
   const maxPct = weeklyData.length > 0 ? Math.max(...weeklyData.map(d => d.pct)) : 0
   const CustomDot = buildDotRenderer(maxPct)
