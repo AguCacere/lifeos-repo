@@ -7,6 +7,7 @@ import { useAuth } from './hooks/useAuth'
 import ProjectsPage from './pages/projects/ProjectsPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import RoutinesPage from './pages/routines/RoutinesPage'
+import SettingsPage from './pages/settings/SettingsPage'
 
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="goals" element={<GoalsPage userId={user.id} />} />
           <Route path="routines" element={<RoutinesPage userId={user.id} />} />
           <Route path="projects" element={<ProjectsPage userId={user.id} />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
