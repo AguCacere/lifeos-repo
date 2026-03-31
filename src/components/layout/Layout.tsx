@@ -74,7 +74,7 @@ export default function Layout() {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto pt-14 md:pt-0 pb-32 md:pb-0 px-4 md:p-8">
+      <main className="flex-1 overflow-y-auto pt-14 pb-32 px-4 md:p-8">
         <Outlet />
       </main>
 
