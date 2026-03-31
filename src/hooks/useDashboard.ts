@@ -15,11 +15,13 @@ export function useDashboard(userId: string) {
   }, [userId])
 
   async function fetchAll() {
-    const today = new Date().toISOString().split('T')[0]
+    const from = new Date()
+    from.setUTCDate(from.getUTCDate() - 30)
+    const fromStr = from.toISOString().split('T')[0]
 
     const [habitsRes, logsRes, goalsRes, projectsRes] = await Promise.all([
       supabase.from('habits').select('*').eq('user_id', userId).eq('is_active', true),
-      supabase.from('habit_logs').select('*').eq('log_date', today),
+      supabase.from('habit_logs').select('*').gte('log_date', fromStr),
       supabase.from('goals').select('*').eq('user_id', userId).eq('status', 'activo').order('created_at', { ascending: false }).limit(4),
       supabase.from('projects').select('*').eq('user_id', userId).eq('status', 'en_progreso').order('created_at', { ascending: false }).limit(4),
     ])
@@ -49,5 +51,5 @@ export function useDashboard(userId: string) {
     return todayLogs.some(l => l.habit_id === habitId && l.log_date === today && l.completed)
   }
 
-  return { habits, goals, projects, loading, toggleHabit, isCompletedToday }
+  return { habits, logs: todayLogs, goals, projects, loading, toggleHabit, isCompletedToday }
 }

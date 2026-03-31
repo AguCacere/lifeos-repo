@@ -1,4 +1,5 @@
 import { useDashboard } from '../../hooks/useDashboard'
+import { calculateStreak } from '../../hooks/useHabits'
 import { Link } from 'react-router-dom'
 
 function getGreeting() {
@@ -9,9 +10,10 @@ function getGreeting() {
 }
 
 export default function DashboardPage({ userId, displayName }: { userId: string; displayName: string }) {
-  const { habits, goals, projects, loading, toggleHabit, isCompletedToday } = useDashboard(userId)
+  const { habits, logs, goals, projects, loading, toggleHabit, isCompletedToday } = useDashboard(userId)
 
   const completedToday = habits.filter(h => isCompletedToday(h.id)).length
+  const streak = calculateStreak(habits, logs)
   const today = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })
   const pct = habits.length > 0 ? Math.round((completedToday / habits.length) * 100) : 0
 
@@ -42,7 +44,7 @@ export default function DashboardPage({ userId, displayName }: { userId: string;
             </div>
             {habits.length > 0 && (
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-600 text-white">
-                En racha: {completedToday} días
+                En racha: {streak} día{streak !== 1 ? 's' : ''}
               </span>
             )}
           </div>
