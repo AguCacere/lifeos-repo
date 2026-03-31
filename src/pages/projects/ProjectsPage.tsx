@@ -67,7 +67,7 @@ export default function ProjectsPage({ userId }: { userId: string }) {
   if (loading) return <p className="text-gray-400 text-sm">Cargando proyectos...</p>
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl pt-6 md:pt-0">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Proyectos</h1>
@@ -77,71 +77,98 @@ export default function ProjectsPage({ userId }: { userId: string }) {
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-3 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+          className="px-4 py-3 min-h-[44px] bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
         >
           + Nuevo proyecto
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-white border border-gray-100 rounded-xl p-4 mb-4 shadow-sm">
-          <p className="text-sm font-medium text-gray-700 mb-3">Nuevo proyecto</p>
+        <div className="bg-white border border-gray-100 rounded-2xl p-5 mb-5 shadow-sm">
+          <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-4">Nuevo proyecto</p>
+
           <input
             type="text"
             placeholder="Nombre del proyecto..."
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 mb-2 outline-none focus:border-indigo-400"
+            className="w-full text-sm border-b border-gray-200 pb-2.5 mb-4 outline-none focus:border-indigo-500 bg-transparent text-gray-700 placeholder:text-gray-300 transition-colors"
           />
+
           <textarea
             placeholder="Descripción (opcional)..."
             value={description}
             onChange={e => setDescription(e.target.value)}
             rows={2}
-            className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 mb-2 outline-none focus:border-indigo-400 resize-none"
+            className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 mb-4 outline-none focus:border-indigo-400 focus:bg-white transition-all resize-none text-gray-700 placeholder:text-gray-300"
           />
-          <div className="flex gap-2 mb-3">
-            <select
-              value={category}
-              onChange={e => setCategory(e.target.value as Project['category'])}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-400"
-            >
+
+          {/* Category pills */}
+          <div className="mb-4">
+            <p className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase mb-2">Categoría</p>
+            <div className="flex flex-wrap gap-2">
               {CATEGORIES.map(c => (
-                <option key={c.value} value={c.value}>{c.label}</option>
+                <button
+                  key={c.value}
+                  onClick={() => setCategory(c.value)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border-2 transition-all ${
+                    category === c.value
+                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
+                      : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  {c.label}
+                </button>
               ))}
-            </select>
-            <select
-              value={status}
-              onChange={e => setStatus(e.target.value as Project['status'])}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-400"
-            >
+            </div>
+          </div>
+
+          {/* Status pills */}
+          <div className="mb-4">
+            <p className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase mb-2">Estado</p>
+            <div className="flex flex-wrap gap-2">
               {STATUS.map(s => (
-                <option key={s.value} value={s.value}>{s.label}</option>
+                <button
+                  key={s.value}
+                  onClick={() => setStatus(s.value)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border-2 transition-all ${
+                    status === s.value
+                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
+                      : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  {s.label}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
-          <div className="flex items-center gap-2 mb-3">
-            <input
-              type="checkbox"
-              id="isPublic"
-              checked={isPublic}
-              onChange={e => setIsPublic(e.target.checked)}
-              className="accent-indigo-600"
-            />
-            <label htmlFor="isPublic" className="text-sm text-gray-600">
-              Visible en mi portfolio público
-            </label>
+
+          {/* Public toggle */}
+          <div className="flex items-center justify-between mb-5 py-2.5 px-3 bg-gray-50 rounded-xl">
+            <div>
+              <p className="text-sm font-medium text-gray-700">Visible en portfolio público</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">Otros usuarios podrán verlo</p>
+            </div>
+            <button
+              onClick={() => setIsPublic(!isPublic)}
+              className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${isPublic ? 'bg-indigo-600' : 'bg-gray-200'}`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${isPublic ? 'translate-x-4' : ''}`}
+              />
+            </button>
           </div>
+
           <div className="flex gap-2">
             <button
               onClick={handleAdd}
-              className="px-3 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+              className="flex-1 md:flex-none px-4 py-3 min-h-[44px] bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
             >
               Guardar
             </button>
             <button
               onClick={() => setShowForm(false)}
-              className="px-3 py-1.5 text-gray-500 text-sm rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 md:flex-none px-4 py-3 min-h-[44px] text-gray-500 text-sm rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
             >
               Cancelar
             </button>
@@ -150,9 +177,9 @@ export default function ProjectsPage({ userId }: { userId: string }) {
       )}
 
       {projects.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
-          <p className="text-sm">No tenés proyectos todavía</p>
-          <p className="text-xs mt-1">Creá tu primero con el botón de arriba</p>
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm text-center py-16 px-6">
+          <p className="text-sm font-semibold text-gray-700 mb-1">No tenés proyectos todavía</p>
+          <p className="text-xs text-gray-400 mt-1">Creá tu primero con el botón de arriba</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -239,11 +266,11 @@ export default function ProjectsPage({ userId }: { userId: string }) {
                               value={newUpdate}
                               onChange={e => setNewUpdate(e.target.value)}
                               onKeyDown={e => e.key === 'Enter' && handleAddUpdate(project.id)}
-                              className="flex-1 text-xs border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-400"
+                              className="flex-1 text-xs bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-indigo-400 focus:bg-white transition-all"
                             />
                             <button
                               onClick={() => handleAddUpdate(project.id)}
-                              className="px-3 py-2 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700 transition-colors"
+                              className="px-3 py-2 bg-indigo-600 text-white text-xs rounded-xl hover:bg-indigo-700 transition-colors font-medium"
                             >
                               + Agregar
                             </button>
@@ -281,11 +308,11 @@ export default function ProjectsPage({ userId }: { userId: string }) {
                               value={newTask}
                               onChange={e => setNewTask(e.target.value)}
                               onKeyDown={e => e.key === 'Enter' && handleAddTask(project.id)}
-                              className="flex-1 text-xs border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-400"
+                              className="flex-1 text-xs bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-indigo-400 focus:bg-white transition-all"
                             />
                             <button
                               onClick={() => handleAddTask(project.id)}
-                              className="px-3 py-2 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700 transition-colors"
+                              className="px-3 py-2 bg-indigo-600 text-white text-xs rounded-xl hover:bg-indigo-700 transition-colors font-medium"
                             >
                               + Agregar
                             </button>
@@ -314,15 +341,22 @@ export default function ProjectsPage({ userId }: { userId: string }) {
                       )}
 
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
-                        <select
-                          value={project.status}
-                          onChange={e => updateProject(project.id, { status: e.target.value as Project['status'] })}
-                          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-indigo-400"
-                        >
-                          {STATUS.map(s => (
-                            <option key={s.value} value={s.value}>{s.label}</option>
-                          ))}
-                        </select>
+                        <div className="relative">
+                          <select
+                            value={project.status}
+                            onChange={e => updateProject(project.id, { status: e.target.value as Project['status'] })}
+                            className="appearance-none text-xs bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 pr-7 outline-none focus:border-indigo-400 focus:bg-white transition-all text-gray-700 cursor-pointer"
+                          >
+                            {STATUS.map(s => (
+                              <option key={s.value} value={s.value}>{s.label}</option>
+                            ))}
+                          </select>
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          </div>
+                        </div>
                         <button
                           onClick={() => deleteProject(project.id)}
                           className="text-xs text-red-400 hover:text-red-600 transition-colors"

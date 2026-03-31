@@ -7,10 +7,11 @@ import { useAuth } from './hooks/useAuth'
 import ProjectsPage from './pages/projects/ProjectsPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import RoutinesPage from './pages/routines/RoutinesPage'
+import SettingsPage from './pages/settings/SettingsPage'
 
 
 export default function App() {
-  const { user, loading } = useAuth()
+  const { user, loading, displayName } = useAuth()
 
   if (loading) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -25,11 +26,12 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardPage userId={user.id} />} />
+          <Route path="dashboard" element={<DashboardPage userId={user.id} displayName={displayName} />} />
           <Route path="habits" element={<HabitsPage userId={user.id} />} />
           <Route path="goals" element={<GoalsPage userId={user.id} />} />
           <Route path="routines" element={<RoutinesPage userId={user.id} />} />
           <Route path="projects" element={<ProjectsPage userId={user.id} />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
