@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
+import { useAuth } from '../../hooks/useAuth'
 
 const mobileNav = [
   {
@@ -51,6 +52,7 @@ const mobileNav = [
 
 export default function Layout() {
   const location = useLocation()
+  const { displayName } = useAuth()
 
   return (
     <div className="flex min-h-screen text-gray-900" style={{ background: '#f4f4f9' }}>
@@ -71,6 +73,21 @@ export default function Layout() {
             <p className="text-[8px] tracking-[0.15em] text-gray-400 uppercase leading-none">The Digital Architect</p>
           </div>
         </div>
+        {/* Avatar → Settings */}
+        <Link
+          to="/settings"
+          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+            location.pathname === '/settings'
+              ? 'bg-indigo-600'
+              : 'bg-indigo-100 hover:bg-indigo-200'
+          }`}
+        >
+          <span className={`text-xs font-bold uppercase ${
+            location.pathname === '/settings' ? 'text-white' : 'text-indigo-700'
+          }`}>
+            {displayName.charAt(0) || '?'}
+          </span>
+        </Link>
       </div>
 
       {/* Main content */}
